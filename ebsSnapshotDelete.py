@@ -9,6 +9,7 @@ def ebs_Daily_Delete():
     
     print("---ebs daily delete function starting---")
     
+    # get snapshots based on daily or monthly tag values
     get_snapshots = c.describe_snapshots(
         Filters = [
             {
@@ -24,10 +25,12 @@ def ebs_Daily_Delete():
     print("---snapshots available based on tag filter---")
     print(get_snapshots)
     
+    # look through snapshots and print snapshotId
     for snaps in get_snapshots:
         print("---printing snapshot id---")
         snap_Id = snaps['SnapshotId']
         print(snap_Id)
+        # look through snapshot tags and if retention tag holds a value of today delete it
         for t in snaps['Tags']:
             tag_key = t['Key']
             tag_val = t['Value']
@@ -36,6 +39,7 @@ def ebs_Daily_Delete():
                 snap_del = c.delete_snapshot(
                         SnapshotId = snaps['SnapshotId']
                 )
+            # if retention key does not equal today print no snapshots to delete
             elif tag_key == 'Retention' and tag_val != datetime.date.today().strftime('%Y-%m-%d'):
                 print("---no snapshots to delete---")
                 
